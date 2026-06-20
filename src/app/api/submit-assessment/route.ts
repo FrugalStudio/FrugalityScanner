@@ -1,0 +1,90 @@
+import { NextResponse } from "next/server";
+import { type AssessmentAnswers, type ScoreResult } from "@/lib/assessment";
+import { generateFallbackReport } from "@/lib/report";
+import { hasSupabaseConfig, insertAssessment, insertResponses } from "@/lib/supabase-rest";
+
+type SubmitPayload = {
+  contact: Record<string, string>;
+  answers: AssessmentAnswers;
+  scores: ScoreResult;
+};
+
+export async function POST(request: Request) {
+  const payload = (await request.json()) as SubmitPayload;
+  const report = generateFallbackReport(payload.answers, payload.scores);
+  const record = {
+    first_name: payload.contact.firstName,
+    last_name: payload.contact.lastName,
+    email: payload.contact.email,
+    phone: payload.contact.phone || null,
+    linkedin_url: payload.contact.linkedinUrl || null,
+    company: payload.contact.company,
+    website: payload.contact.website,
+    organization_type: payload.answers.organizationType,
+    business_goal: payload.answers.businessGoal,
+    team_size: payload.answers.teamSize,
+    operational_intelligence_index: payload.scores.operationalIntelligenceIndex,
+    operational_friction_score: payload.scores.operationalFrictionScore,
+    founder_dependency_index: payload.scores.founderDependencyIndex,
+    structural_debt_score: payload.scores.structuralDebtScore,
+    opportunity_low: payload.scores.opportunityLow,
+    opportunity_high: payload.scores.opportunityHigh,
+    top_findings: payload.scores.topFindings,
+    full_report: report,
+    n8n_status: "not_sent",
+    email_status: process.env.RESEND_API_KEY ? "pending" : "fallback_report_ready",
+  };
+
+  let assessmentId = `local-${Date.now()}`;
+  let storageStatus = "local_fallback";
+
+  if (hasSupabaseConfig()) {
+    const inserted = await insertAssessment(record);
+    assessmentId = inserted.id;
+    storageStatus = "stored";
+    await insertResponses(
+      Object.entries(payload.answers).map(([question_key, answer_value]) => ({
+        assessment_id: assessmentId,
+        question_key,
+        answer_value,
+      })),
+    );
+  }
+
+  let n8nStatus = "not_configured";
+  if (process.env.N8N_WEBHOOK_URL) {
+    try {
+      const webhookResponse = await fetch(process.env.N8N_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assessment_id: assessmentId,
+          contact: {
+            ...payload.contact,
+            name: `${payload.contact.firstName} ${payload.contact.lastName}`.trim(),
+          },
+          company: { name: payload.contact.company, website: payload.contact.website },
+          responses: payload.answers,
+          scores: payload.scores,
+          top_findings: payload.scores.topFindings,
+          opportunity_estimate: {
+            low: payload.scores.opportunityLow,
+            high: payload.scores.opportunityHigh,
+          },
+          fallback_report: report,
+        }),
+      });
+      n8nStatus = webhookResponse.ok ? "sent" : "failed";
+    } catch {
+      n8nStatus = "failed";
+    }
+  }
+
+  return NextResponse.json({
+    ok: true,
+    assessmentId,
+    storageStatus,
+    n8nStatus,
+    reportQueued: true,
+  });
+}
