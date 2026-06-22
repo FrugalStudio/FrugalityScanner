@@ -15,16 +15,41 @@ import {
 } from "@/lib/assessment";
 import { scoreAssessment } from "@/lib/scoring";
 
-const steps = ["Business", "Goal", "Scale", "Stack", "Drag", "Finance"];
+type ContactInfo = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  company: string;
+  website: string;
+  linkedinUrl: string;
+  phone: string;
+};
+
+const initialContact: ContactInfo = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  company: "",
+  website: "",
+  linkedinUrl: "",
+  phone: "",
+};
+
+const steps = ["Contact", "Business", "Goal", "Scale", "Stack", "Drag", "Finance"];
 
 export default function AssessmentPage() {
   const router = useRouter();
+  const [contact, setContact] = useState<ContactInfo>(initialContact);
   const [answers, setAnswers] = useState<AssessmentAnswers>(initialAnswers);
   const [step, setStep] = useState(0);
   const currentGoals = useMemo(
     () => businessGoals[goalBucket(answers.organizationType)],
     [answers.organizationType],
   );
+
+  function updateContact<T extends keyof ContactInfo>(key: T, value: string) {
+    setContact((current) => ({ ...current, [key]: value }));
+  }
 
   function update<T extends keyof AssessmentAnswers>(key: T, value: AssessmentAnswers[T]) {
     setAnswers((current) => ({ ...current, [key]: value }));
@@ -43,12 +68,20 @@ export default function AssessmentPage() {
       return;
     }
     const scores = scoreAssessment(answers);
-    window.localStorage.setItem("frugality-assessment", JSON.stringify({ answers, scores }));
+    window.localStorage.setItem("frugality-assessment", JSON.stringify({ contact, answers, scores }));
     router.push("/results");
   }
 
   const canContinue =
-    step === 0 ? Boolean(answers.organizationType) : step === 1 ? Boolean(answers.businessGoal) : step === 2 ? Boolean(answers.teamSize) : true;
+    step === 0
+      ? Boolean(contact.firstName && contact.email && contact.company)
+      : step === 1
+        ? Boolean(answers.organizationType)
+        : step === 2
+          ? Boolean(answers.businessGoal)
+          : step === 3
+            ? Boolean(answers.teamSize)
+            : true;
 
   return (
     <main className="min-h-screen px-6 py-8">
@@ -61,7 +94,7 @@ export default function AssessmentPage() {
           <div className="text-sm text-[var(--ink-muted)]">5-7 minute diagnostic</div>
         </header>
 
-        <div className="mb-8 grid grid-cols-6 gap-2">
+        <div className="mb-8 grid grid-cols-7 gap-2">
           {steps.map((label, index) => (
             <div key={label} className="h-2 rounded-full bg-white/10">
               <div className={`h-2 rounded-full ${index <= step ? "bg-[var(--accent)]" : "bg-transparent"}`} />
@@ -75,6 +108,22 @@ export default function AssessmentPage() {
           </div>
 
           {step === 0 && (
+            <div>
+              <h2 className="text-3xl font-bold text-white">Let&apos;s get started</h2>
+              <p className="mt-2 text-[var(--ink-muted)]">We&apos;ll send your personalised Operational Intelligence Report to this email once you complete the assessment.</p>
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <ContactInput label="First name" value={contact.firstName} onChange={(v) => updateContact("firstName", v)} required />
+                <ContactInput label="Last name" value={contact.lastName} onChange={(v) => updateContact("lastName", v)} />
+                <ContactInput label="Business email" type="email" value={contact.email} onChange={(v) => updateContact("email", v)} required />
+                <ContactInput label="Company name" value={contact.company} onChange={(v) => updateContact("company", v)} required />
+                <ContactInput label="Website" value={contact.website} onChange={(v) => updateContact("website", v)} />
+                <ContactInput label="LinkedIn URL" value={contact.linkedinUrl} onChange={(v) => updateContact("linkedinUrl", v)} />
+                <ContactInput label="Phone" type="tel" value={contact.phone} onChange={(v) => updateContact("phone", v)} />
+              </div>
+            </div>
+          )}
+
+          {step === 1 && (
             <ChoiceGrid
               title="What type of organization are you?"
               options={organizationTypes}
@@ -83,7 +132,7 @@ export default function AssessmentPage() {
             />
           )}
 
-          {step === 1 && (
+          {step === 2 && (
             <ChoiceGrid
               title="What is the main business goal?"
               options={currentGoals}
@@ -92,7 +141,7 @@ export default function AssessmentPage() {
             />
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <ChoiceGrid
               title="What is the current scale of your core organization?"
               options={teamSizes}
@@ -101,7 +150,7 @@ export default function AssessmentPage() {
             />
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div>
               <h2 className="text-3xl font-bold text-white">Which tools are active in the operation?</h2>
               <div className="mt-6 grid gap-5">
@@ -130,7 +179,7 @@ export default function AssessmentPage() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div>
               <h2 className="text-3xl font-bold text-white">Operational drag metrics</h2>
               <div className="mt-6 grid gap-5">
@@ -144,7 +193,7 @@ export default function AssessmentPage() {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <div>
               <h2 className="text-3xl font-bold text-white">Financial metrics</h2>
               <div className="mt-6 grid gap-6">
@@ -170,12 +219,42 @@ export default function AssessmentPage() {
               disabled={!canContinue}
               className="inline-flex h-11 items-center gap-2 rounded-md bg-[var(--accent)] px-5 text-sm font-bold text-[#06100d] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {step === steps.length - 1 ? "See Partial Results" : "Continue"} <ArrowRight size={16} />
+              {step === steps.length - 1 ? "See My Results" : "Continue"} <ArrowRight size={16} />
             </button>
           </div>
         </section>
       </div>
     </main>
+  );
+}
+
+function ContactInput({
+  label,
+  type = "text",
+  value,
+  onChange,
+  required = false,
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm text-[#c5d6ce]">
+        {label}
+        {required && <span className="text-[var(--accent)]"> *</span>}
+      </span>
+      <input
+        className="mt-2 h-12 w-full rounded-md border border-[var(--line)] bg-[#07120f] px-3 text-white outline-none focus:border-[var(--accent)]"
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+      />
+    </label>
   );
 }
 
