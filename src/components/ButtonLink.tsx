@@ -18,7 +18,7 @@ export function ButtonLink({
   return (
     <Link
       href={href}
-      className={`inline-flex h-12 items-center justify-center rounded-md px-5 text-sm font-bold transition ${styles}`}
+      className={`inline-flex h-12 items-center justify-center rounded-lg px-6 text-sm font-bold shadow-sm transition ${styles}`}
     >
       {children}
     </Link>

@@ -64,10 +64,10 @@ export default function ResultsPage() {
   if (!stored) {
     return (
       <main className="flex min-h-screen items-center justify-center px-6">
-        <div className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-8 text-center">
-          <h1 className="text-3xl font-bold text-white">No assessment found</h1>
+        <div className="rounded-xl border border-[var(--line)] bg-white p-8 text-center shadow-sm">
+          <h1 className="text-3xl font-bold text-[var(--petrol)]">No assessment found</h1>
           <a
-            className="mt-5 inline-flex rounded-md bg-[var(--petrol)] px-5 py-3 font-bold text-white hover:bg-[#286878]"
+            className="mt-5 inline-flex rounded-lg bg-[var(--tangerine)] px-5 py-3 font-bold text-white hover:bg-[var(--accent-strong)]"
             href="/assessment"
           >
             Start Free Diagnostic
@@ -85,13 +85,13 @@ export default function ResultsPage() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-10">
+    <main className="min-h-screen bg-[var(--panel)] px-6 py-10">
       <div className="mx-auto max-w-4xl">
         <header className="mb-6">
           <div className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--tangerine)]">
             Frugal Studio powered by Mindful Tech
           </div>
-          <h1 className="mt-2 text-4xl font-bold text-white">
+          <h1 className="mt-2 text-4xl font-bold text-[var(--petrol)]">
             {contact.company ? `${contact.company} — ` : ""}Frugality Scores
           </h1>
           <p className="mt-1 text-[var(--ink-muted)]">
@@ -100,11 +100,11 @@ export default function ResultsPage() {
         </header>
 
         {/* ── CTA + status banners — ABOVE scores ─────────────────────── */}
-        <div className="mb-8 rounded-lg border border-[var(--line)] bg-[var(--panel)] p-5">
+        <div className="mb-8 rounded-xl border border-[var(--line)] bg-white p-5 shadow-sm">
           {confirmVisible ? (
             <div className="flex items-center gap-3">
               <CheckCircle size={18} className="shrink-0 text-[var(--tangerine)]" />
-              <span className="text-sm text-white">
+              <span className="text-sm text-[var(--charcoal)]">
                 Your full report is on its way to{" "}
                 <strong className="text-[var(--tangerine)]">{contact.email}</strong>. Redirecting…
               </span>
@@ -112,7 +112,7 @@ export default function ResultsPage() {
           ) : (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="font-semibold text-white">Ready to receive your full report?</div>
+                <div className="font-semibold text-[var(--petrol)]">Ready to receive your full report?</div>
                 <div className="mt-1 text-sm text-[var(--ink-muted)]">
                   {reportStatus === "sending"
                     ? "Generating your report — this only takes a moment…"
@@ -124,7 +124,7 @@ export default function ResultsPage() {
               <button
                 type="button"
                 onClick={handleReceiveReport}
-                className="inline-flex h-12 shrink-0 items-center gap-2 rounded-md bg-[var(--tangerine)] px-6 text-sm font-bold text-white transition hover:bg-[var(--accent-strong)]"
+                className="inline-flex h-12 shrink-0 items-center gap-2 rounded-lg bg-[var(--tangerine)] px-6 text-sm font-bold text-white transition hover:bg-[var(--accent-strong)]"
               >
                 <FileText size={16} />
                 Click here to receive full report
@@ -132,7 +132,7 @@ export default function ResultsPage() {
             </div>
           )}
           {reportStatus === "error" && !confirmVisible && (
-            <p className="mt-3 text-xs text-red-400">
+            <p className="mt-3 text-xs text-red-500">
               Delivery issue detected — please also email us at{" "}
               <a href="mailto:felipe@frugalstudio.design" className="underline">
                 felipe@frugalstudio.design
@@ -143,56 +143,40 @@ export default function ResultsPage() {
 
         {/* ── Composite scores ─────────────────────────────────────────── */}
         <div className="grid gap-4 md:grid-cols-2">
-          {/* OII: high = good */}
-          <ScoreDial
-            label="Operational Intelligence Index"
-            value={scores.operationalIntelligenceIndex}
-            highIsGood={true}
-          />
-          {/* Savings: shown as currency, not a score dial */}
-          <div className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-5">
-            <div className="text-xs uppercase tracking-[0.18em] text-[var(--ink-muted)]">
+          <ScoreDial label="Operational Intelligence Index" value={scores.operationalIntelligenceIndex} highIsGood={true} />
+          <div className="rounded-xl border border-[var(--line)] bg-white p-5 shadow-sm">
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-muted)]">
               Estimated Savings Opportunity
             </div>
-            <div className="mt-4 text-4xl font-bold text-[#5ecb8a]">
+            <div className="mt-4 text-4xl font-bold text-[#1a8a50]">
               {currency(scores.opportunityLow)}–{currency(scores.opportunityHigh)}
             </div>
-            <div className="mt-2 text-xs font-semibold text-[#5ecb8a]">Monthly recovery potential</div>
+            <div className="mt-2 text-xs font-semibold text-[#1a8a50]">Monthly recovery potential</div>
             <div className="mt-1 text-xs text-[var(--ink-muted)]">Diagnostic estimate — not a guarantee</div>
           </div>
-          {/* OFS: high = BAD */}
-          <ScoreDial
-            label="Operational Friction Score"
-            value={scores.operationalFrictionScore}
-            highIsGood={false}
-          />
-          {/* FDI: high = BAD */}
-          <ScoreDial
-            label="Founder Dependency Index"
-            value={scores.founderDependencyIndex}
-            highIsGood={false}
-          />
+          <ScoreDial label="Operational Friction Score" value={scores.operationalFrictionScore} highIsGood={false} />
+          <ScoreDial label="Founder Dependency Index" value={scores.founderDependencyIndex} highIsGood={false} />
         </div>
 
         {/* ── Top findings ─────────────────────────────────────────────── */}
-        <div className="mt-6 rounded-lg border border-[var(--line)] bg-[var(--panel)] p-6">
-          <h2 className="text-xl font-bold text-white">Top Diagnostic Findings</h2>
+        <div className="mt-6 rounded-xl border border-[var(--line)] bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-[var(--petrol)]">Top Diagnostic Findings</h2>
           <p className="mt-1 text-sm text-[var(--ink-muted)]">
             Your highest-priority operational friction points based on your responses.
           </p>
           <div className="mt-4 grid gap-3">
             {scores.topFindings.map((finding, i) => (
-              <div key={finding} className="rounded-md bg-white/[0.04] p-4">
+              <div key={finding} className="rounded-lg bg-[var(--panel)] p-4">
                 <span className="mr-2 font-bold text-[var(--tangerine)]">{i + 1}.</span>
-                <span className="text-[#c4d6cd]">{finding}</span>
+                <span className="text-[var(--charcoal)]">{finding}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* ── Per-metric breakdown — vertical ──────────────────────────── */}
+        {/* ── Per-metric breakdown ──────────────────────────────────────── */}
         <div className="mt-6">
-          <h2 className="mb-4 text-xl font-bold text-white">Metric Breakdown</h2>
+          <h2 className="mb-4 text-xl font-bold text-[var(--petrol)]">Metric Breakdown</h2>
           <p className="mb-4 text-sm text-[var(--ink-muted)]">
             All metrics run 0 (best) → 5 (worst). Higher bars indicate more operational drag.
           </p>
@@ -203,40 +187,30 @@ export default function ResultsPage() {
               const pct = (rawValue / 5) * 100;
               const severity =
                 rawValue >= 4
-                  ? { badge: "bg-[rgba(255,100,80,0.15)] text-[#ff8e7d]", bar: "bg-[#ff8e7d]" }
+                  ? { badge: "bg-[rgba(201,64,64,0.1)] text-[#c94040]", bar: "bg-[#c94040]" }
                   : rawValue >= 3
-                    ? { badge: "bg-[rgba(240,144,60,0.15)] text-[var(--tangerine)]", bar: "bg-[var(--tangerine)]" }
-                    : { badge: "bg-[rgba(94,203,138,0.12)] text-[#5ecb8a]", bar: "bg-[#5ecb8a]" };
+                    ? { badge: "bg-[rgba(240,144,60,0.12)] text-[var(--tangerine)]", bar: "bg-[var(--tangerine)]" }
+                    : { badge: "bg-[rgba(26,138,80,0.1)] text-[#1a8a50]", bar: "bg-[#1a8a50]" };
               return (
-                <div
-                  key={String(def.key)}
-                  className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-5"
-                >
+                <div key={String(def.key)} className="rounded-xl border border-[var(--line)] bg-white p-5 shadow-sm">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="font-semibold text-white">
+                      <div className="font-semibold text-[var(--petrol)]">
                         {def.label}
                         {def.sublabel && (
-                          <span className="ml-2 text-xs font-normal text-[var(--ink-muted)]">
-                            ({def.sublabel})
-                          </span>
+                          <span className="ml-2 text-xs font-normal text-[var(--ink-muted)]">({def.sublabel})</span>
                         )}
                       </div>
                       <div className="mt-1 text-sm text-[var(--ink-muted)]">{def.shortDesc}</div>
                     </div>
-                    <div className={`shrink-0 rounded-md px-3 py-1 text-sm font-bold ${severity.badge}`}>
+                    <div className={`shrink-0 rounded-lg px-3 py-1 text-sm font-bold ${severity.badge}`}>
                       {rawValue}/5
                     </div>
                   </div>
-                  <div className="mt-3 h-1.5 rounded-full bg-white/10">
-                    <div
-                      className={`h-1.5 rounded-full transition-all ${severity.bar}`}
-                      style={{ width: `${pct}%` }}
-                    />
+                  <div className="mt-3 h-1.5 rounded-full bg-[var(--panel-2)]">
+                    <div className={`h-1.5 rounded-full transition-all ${severity.bar}`} style={{ width: `${pct}%` }} />
                   </div>
-                  {scaleLabel && (
-                    <div className="mt-2 text-xs text-[var(--ink-muted)]">{scaleLabel}</div>
-                  )}
+                  {scaleLabel && <div className="mt-2 text-xs text-[var(--ink-muted)]">{scaleLabel}</div>}
                 </div>
               );
             })}
@@ -245,21 +219,17 @@ export default function ResultsPage() {
 
         {/* Bottom retake link */}
         <div className="mt-8 flex justify-end">
-          <a href="/assessment" className="text-sm text-[var(--ink-muted)] hover:text-white">
+          <a href="/assessment" className="text-sm text-[var(--ink-muted)] hover:text-[var(--petrol)]">
             Retake assessment
           </a>
         </div>
 
         {/* Booking nudge */}
-        <div className="mt-4 rounded-lg border border-[rgba(240,144,60,0.25)] bg-[rgba(240,144,60,0.06)] p-5 text-center">
-          <p className="text-sm text-[var(--ink-muted)]">
+        <div className="mt-4 rounded-xl border border-[rgba(240,144,60,0.3)] bg-[rgba(240,144,60,0.06)] p-5 text-center">
+          <p className="text-sm text-[var(--charcoal)]">
             Want to act on these findings now?{" "}
-            <a
-              href={BOOKING_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-[var(--tangerine)] hover:underline"
-            >
+            <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer"
+              className="font-semibold text-[var(--tangerine)] hover:underline">
               Book a Discovery Call
             </a>{" "}
             with Frugal Studio powered by Mindful Tech.

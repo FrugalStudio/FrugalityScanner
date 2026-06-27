@@ -18,66 +18,87 @@ import {
 } from "@/lib/assessment";
 import { scoreAssessment } from "@/lib/scoring";
 
-export type ContactInfo = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  company: string;
-  website: string;
-  linkedinUrl: string;
-  phone: string;
+type ContactInfo = {
+  firstName: string; lastName: string; email: string;
+  company: string; website: string; linkedinUrl: string; phone: string;
+};
+type OtherInputs = {
+  organizationTypeOther: string; businessGoalRanking: string[];
+  toolGroupOthers: Record<string, string>; dealSizeRange: string; fundingStructure: string;
 };
 
-export type OtherInputs = {
-  organizationTypeOther: string;
-  businessGoalRanking: string[];
-  toolGroupOthers: Record<string, string>;
-  dealSizeRange: string;
-  fundingStructure: string;
-};
+const initialContact: ContactInfo = { firstName: "", lastName: "", email: "", company: "", website: "", linkedinUrl: "", phone: "" };
+const initialOtherInputs: OtherInputs = { organizationTypeOther: "", businessGoalRanking: [], toolGroupOthers: {}, dealSizeRange: "", fundingStructure: "" };
 
-const initialContact: ContactInfo = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  company: "",
-  website: "",
-  linkedinUrl: "",
-  phone: "",
-};
-
-const initialOtherInputs: OtherInputs = {
-  organizationTypeOther: "",
-  businessGoalRanking: [],
-  toolGroupOthers: {},
-  dealSizeRange: "",
-  fundingStructure: "",
-};
-
-export const STEPS = [
-  "Contact",
-  "Business Type",
-  "Main Goal",
-  "Team Scale",
-  "Tech Stack",
-  "Business Metrics",
-  "Finance",
-];
-
+const STEPS = ["Contacto", "Tipo de Negocio", "Objetivo Principal", "Escala del Equipo", "Stack Tecnológico", "Métricas", "Finanzas"];
 const METRIC_KEYS = metricDefinitions.map((m) => String(m.key));
 
-export function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
+function isValidEmail(email: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 function groupToolIds(groupLabel: string, tools: string[]) {
-  return [
-    ...tools.map((t) => (t === "Other" ? `${groupLabel}:Other` : t)),
-    `${groupLabel}:None`,
-  ];
+  return [...tools.map((t) => (t === "Other" ? `${groupLabel}:Other` : t)), `${groupLabel}:None`];
 }
 
-export default function AssessmentPage() {
+const METRIC_LABELS_ES: Record<string, string> = {
+  leadResponseTime: "Tiempo de Respuesta a Prospectos",
+  documentationMaturity: "Madurez de Documentación",
+  manualTaskLoad: "Carga de Tareas Manuales",
+  reportingLatency: "Latencia en Reportes",
+  onboardingFriction: "Fricción en Incorporación",
+  toolIntegrationGaps: "Brechas de Integración de Herramientas",
+};
+
+const SCALE_ES: Record<string, string[]> = {
+  leadResponseTime: [
+    "Menos de 1 hora — respuesta casi inmediata a nuevos prospectos",
+    "1–4 horas — respuesta rápida durante el día",
+    "4–24 horas — mismo día, con demoras ocasionales",
+    "1–3 días — demoras frecuentes en el seguimiento",
+    "3–7 días — los prospectos quedan en espera varios días",
+    "Más de 1 semana — sin seguimiento consistente, prospectos se enfrían",
+  ],
+  documentationMaturity: [
+    "Completamente documentado — PSOPs, guías de incorporación, playbooks actualizados",
+    "Mayormente documentado — documentación core existe, algunas brechas menores",
+    "Parcialmente documentado — áreas clave documentadas, gaps significativos en otras",
+    "Mínimamente documentado — solo documentación básica o fragmentaria",
+    "Casi sin documentación — la mayor parte vive en la cabeza de las personas",
+    "Sin documentación — todo depende de conocimiento verbal o individual",
+  ],
+  manualTaskLoad: [
+    "Mínimo — casi todos los procesos están automatizados",
+    "Bajo — la mayoría de los procesos están automatizados, mínima intervención manual",
+    "Moderado — mezcla de procesos automatizados y manuales",
+    "Alto — la mayoría de los procesos requieren intervención manual",
+    "Muy alto — casi todos los flujos de trabajo son manuales",
+    "Completamente manual — sin automatización en ningún proceso",
+  ],
+  reportingLatency: [
+    "Tiempo real — dashboards en vivo actualizados continuamente",
+    "Diario — reportes generados automáticamente cada día",
+    "Semanal — reportes disponibles dentro de la semana",
+    "Quincenal — reportes con demoras de 1–2 semanas",
+    "Mensual — datos con demoras de semanas o un mes",
+    "Sin reporte regular — se compila manualmente bajo demanda",
+  ],
+  onboardingFriction: [
+    "Sin fricción — proceso fluido, activos claros y tiempo de incorporación corto",
+    "Fricción mínima — proceso mayormente fluido con pasos menores manuales",
+    "Algo de fricción — algunas ineficiencias que ralentizan la incorporación",
+    "Fricción moderada — múltiples pasos manuales o falta de información",
+    "Alta fricción — proceso lento, confuso o inconsistente",
+    "Incorporación rota — sin proceso establecido, inconsistente o completamente manual",
+  ],
+  toolIntegrationGaps: [
+    "Completamente integrado — todos los sistemas conectados y sincronizados",
+    "Mayormente integrado — pocas brechas menores de datos",
+    "Parcialmente integrado — algunas herramientas conectadas, con gaps notables",
+    "Débilmente integrado — pocos sistemas conectados, duplicación frecuente",
+    "Mínimamente integrado — herramientas mayormente en silos con transferencias manuales",
+    "Sin integración — herramientas completamente desconectadas",
+  ],
+};
+
+export default function AssessmentPageES() {
   const router = useRouter();
   const [contact, setContact] = useState<ContactInfo>(initialContact);
   const [answers, setAnswers] = useState<AssessmentAnswers>(initialAnswers);
@@ -90,74 +111,43 @@ export default function AssessmentPage() {
   const currentGoalBucket = goalBucket(answers.organizationType);
   const currentGoals = businessGoals[currentGoalBucket];
 
-  function updateContact<T extends keyof ContactInfo>(key: T, value: string) {
-    setContact((c) => ({ ...c, [key]: value }));
-  }
-
-  function update<T extends keyof AssessmentAnswers>(key: T, value: AssessmentAnswers[T]) {
-    setAnswers((a) => ({ ...a, [key]: value }));
-  }
-
-  function touchMetric(key: string, value: number) {
-    update(key as keyof AssessmentAnswers, value as AssessmentAnswers[keyof AssessmentAnswers]);
-    setTouchedMetrics((prev) => new Set([...prev, key]));
-  }
-
+  function updateContact<T extends keyof ContactInfo>(key: T, value: string) { setContact((c) => ({ ...c, [key]: value })); }
+  function update<T extends keyof AssessmentAnswers>(key: T, value: AssessmentAnswers[T]) { setAnswers((a) => ({ ...a, [key]: value })); }
+  function touchMetric(key: string, value: number) { update(key as keyof AssessmentAnswers, value as AssessmentAnswers[keyof AssessmentAnswers]); setTouchedMetrics((p) => new Set([...p, key])); }
   function toggleTool(tool: string, groupLabel: string) {
     setAnswers((a) => {
       const isNone = tool === `${groupLabel}:None`;
-      const allGroupIds = groupToolIds(groupLabel, toolGroups.find((g) => g.label === groupLabel)?.tools ?? []);
+      const allIds = groupToolIds(groupLabel, toolGroups.find((g) => g.label === groupLabel)?.tools ?? []);
       if (a.tools.includes(tool)) return { ...a, tools: a.tools.filter((t) => t !== tool) };
-      if (isNone) return { ...a, tools: [...a.tools.filter((t) => !allGroupIds.includes(t)), tool] };
+      if (isNone) return { ...a, tools: [...a.tools.filter((t) => !allIds.includes(t)), tool] };
       return { ...a, tools: [...a.tools.filter((t) => t !== `${groupLabel}:None`), tool] };
     });
   }
 
-  const allGroupsAnswered = toolGroups.every((group) => {
-    const ids = groupToolIds(group.label, group.tools);
-    return ids.some((id) => answers.tools.includes(id));
-  });
-
+  const allGroupsAnswered = toolGroups.every((group) => groupToolIds(group.label, group.tools).some((id) => answers.tools.includes(id)));
   const allMetricsTouched = METRIC_KEYS.every((k) => touchedMetrics.has(k));
 
   const canContinue =
-    step === 0
-      ? Boolean(contact.firstName && contact.lastName && contact.email && isValidEmail(contact.email) && contact.company && contact.linkedinUrl)
-      : step === 1
-        ? Boolean(answers.organizationType && (answers.organizationType !== "Other" || otherInputs.organizationTypeOther.trim()))
-        : step === 2
-          ? rankedGoals.length > 0
-          : step === 3
-            ? Boolean(answers.teamSize)
-            : step === 4
-              ? allGroupsAnswered
-              : step === 5
-                ? allMetricsTouched
-                : step === 6
-                  ? Boolean(otherInputs.dealSizeRange && otherInputs.fundingStructure)
-                  : true;
+    step === 0 ? Boolean(contact.firstName && contact.lastName && contact.email && isValidEmail(contact.email) && contact.company && contact.linkedinUrl)
+    : step === 1 ? Boolean(answers.organizationType && (answers.organizationType !== "Other" || otherInputs.organizationTypeOther.trim()))
+    : step === 2 ? rankedGoals.length > 0
+    : step === 3 ? Boolean(answers.teamSize)
+    : step === 4 ? allGroupsAnswered
+    : step === 5 ? allMetricsTouched
+    : step === 6 ? Boolean(otherInputs.dealSizeRange && otherInputs.fundingStructure)
+    : true;
 
   function next() {
-    if (step === 0 && !isValidEmail(contact.email)) {
-      setEmailError("Please enter a valid email address.");
-      return;
-    }
+    if (step === 0 && !isValidEmail(contact.email)) { setEmailError("Por favor ingresa un correo electrónico válido."); return; }
     setEmailError("");
     if (step === 1) setRankedGoals(currentGoals);
-    if (step === 2) {
-      setOtherInputs((o) => ({ ...o, businessGoalRanking: rankedGoals }));
-      update("businessGoal", rankedGoals[0] ?? "");
-    }
-    if (step < STEPS.length - 1) {
-      setStep(step + 1);
-      window.scrollTo({ top: 0 });
-      return;
-    }
+    if (step === 2) { setOtherInputs((o) => ({ ...o, businessGoalRanking: rankedGoals })); update("businessGoal", rankedGoals[0] ?? ""); }
+    if (step < STEPS.length - 1) { setStep(step + 1); window.scrollTo({ top: 0 }); return; }
     const selectedRange = dealSizeRanges.find((r) => r.label === otherInputs.dealSizeRange);
     const finalAnswers = { ...answers, averageDealSize: selectedRange?.value ?? answers.averageDealSize };
     const scores = scoreAssessment(finalAnswers);
     window.localStorage.setItem("frugality-assessment", JSON.stringify({ contact, answers: finalAnswers, scores, otherInputs }));
-    router.push("/results");
+    router.push("/es/results");
   }
 
   return (
@@ -165,15 +155,12 @@ export default function AssessmentPage() {
       <div className="mx-auto max-w-5xl">
         <header className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--tangerine)]">
-              Frugal Studio powered by Mindful Tech Automations
-            </div>
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--tangerine)]">Frugal Studio powered by Mindful Tech Automations</div>
             <h1 className="mt-1 text-3xl font-bold text-[var(--petrol)]">Frugality Scanner</h1>
           </div>
-          <div className="text-sm text-[var(--ink-muted)]">~10 min diagnostic</div>
+          <div className="text-sm text-[var(--ink-muted)]">~10 min de diagnóstico</div>
         </header>
 
-        {/* Progress */}
         <div className="mb-8 grid grid-cols-7 gap-2">
           {STEPS.map((label, index) => (
             <div key={label} title={label} className="h-1.5 rounded-full bg-[var(--panel-2)]">
@@ -184,85 +171,78 @@ export default function AssessmentPage() {
 
         <section className="rounded-xl border border-[var(--line)] bg-white p-6 shadow-sm">
           <div className="mb-5 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--ink-muted)]">
-            Section {step + 1} of {STEPS.length}: {STEPS[step]}
+            Sección {step + 1} de {STEPS.length}: {STEPS[step]}
           </div>
 
-          {/* Step 0: Contact */}
+          {/* Step 0: Contacto */}
           {step === 0 && (
             <div>
-              <h2 className="text-3xl font-bold text-[var(--petrol)]">Let&apos;s get started</h2>
-              <p className="mt-2 text-[var(--ink-muted)]">
-                We&apos;ll send your personalised Frugality Scanner report to this email once you complete the diagnostic.
-              </p>
+              <h2 className="text-3xl font-bold text-[var(--petrol)]">Empecemos</h2>
+              <p className="mt-2 text-[var(--ink-muted)]">Te enviaremos tu reporte personalizado del Frugality Scanner a este correo al completar el diagnóstico.</p>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <ContactInput label="First name" value={contact.firstName} onChange={(v) => updateContact("firstName", v)} required />
-                <ContactInput label="Last name" value={contact.lastName} onChange={(v) => updateContact("lastName", v)} required />
+                <ContactInput label="Nombre" value={contact.firstName} onChange={(v) => updateContact("firstName", v)} required />
+                <ContactInput label="Apellido" value={contact.lastName} onChange={(v) => updateContact("lastName", v)} required />
                 <div className="md:col-span-2">
-                  <ContactInput label="Business email" type="email" value={contact.email}
-                    onChange={(v) => { updateContact("email", v); setEmailError(""); }}
-                    required error={emailError}
-                    hint="Your full report will be sent here." />
+                  <ContactInput label="Correo empresarial" type="email" value={contact.email}
+                    onChange={(v) => { updateContact("email", v); setEmailError(""); }} required error={emailError}
+                    hint="Tu reporte completo será enviado aquí." />
                 </div>
-                <ContactInput label="Business / company name" value={contact.company} onChange={(v) => updateContact("company", v)} required />
-                <ContactInput label="LinkedIn URL" value={contact.linkedinUrl} onChange={(v) => updateContact("linkedinUrl", v)}
-                  required hint="Required — helps us personalise your report and verify your profile." />
-                <ContactInput label="Website" value={contact.website} onChange={(v) => updateContact("website", v)} />
-                <ContactInput label="Phone" type="tel" value={contact.phone} onChange={(v) => updateContact("phone", v)} />
+                <ContactInput label="Nombre de empresa / negocio" value={contact.company} onChange={(v) => updateContact("company", v)} required />
+                <ContactInput label="URL de LinkedIn" value={contact.linkedinUrl} onChange={(v) => updateContact("linkedinUrl", v)}
+                  required hint="Requerido — nos ayuda a personalizar tu reporte y verificar tu perfil." />
+                <ContactInput label="Sitio web" value={contact.website} onChange={(v) => updateContact("website", v)} />
+                <ContactInput label="Teléfono" type="tel" value={contact.phone} onChange={(v) => updateContact("phone", v)} />
               </div>
               <div className="mt-8 rounded-xl border border-[var(--tangerine)] bg-[rgba(240,144,60,0.08)] p-5">
                 <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--tangerine)]">
-                  <Lock size={14} /> Frugal Studio Data Privacy Commitment
+                  <Lock size={14} /> Compromiso de Privacidad de Datos — Frugal Studio
                 </div>
                 <p className="text-xs leading-6 text-[var(--charcoal)]">
-                  Your responses are used only to generate your diagnostic score, identify operational improvement opportunities, and prepare your report. Your contact details, business metrics, and software stack information are kept confidential and are not sold, shared, or distributed to third parties. Data is stored securely and used only by Frugal Studio and Mindful Tech Automations for internal analysis, reporting, and follow-up related to this assessment.
+                  Tus respuestas se utilizan únicamente para generar tu puntuación de diagnóstico, identificar oportunidades de mejora operacional y preparar tu reporte. Tu información de contacto, métricas de negocio y datos de stack tecnológico son confidenciales y no se venden, comparten ni distribuyen a terceros. Los datos se almacenan de forma segura y son utilizados únicamente por Frugal Studio y Mindful Tech Automations para análisis interno, reportes y seguimiento relacionado con esta evaluación.
                 </p>
               </div>
             </div>
           )}
 
-          {/* Step 1: Business Type */}
+          {/* Step 1: Tipo de Negocio */}
           {step === 1 && (
             <div>
-              <ChoiceGrid title="What type of organization are you?" options={organizationTypes}
+              <ChoiceGrid title="¿Qué tipo de organización eres?" options={organizationTypes}
                 value={answers.organizationType} onSelect={(v) => update("organizationType", v as OrganizationType)} />
               {answers.organizationType === "Other" && (
                 <div className="mt-4">
-                  <ContactInput label="Please describe your business type" value={otherInputs.organizationTypeOther}
+                  <ContactInput label="Describe tu tipo de negocio" value={otherInputs.organizationTypeOther}
                     onChange={(v) => setOtherInputs((o) => ({ ...o, organizationTypeOther: v }))} required />
                 </div>
               )}
             </div>
           )}
 
-          {/* Step 2: Main Goal */}
+          {/* Step 2: Objetivo Principal */}
           {step === 2 && (
             <div>
-              <h2 className="text-3xl font-bold text-[var(--petrol)]">Rank your main business goals</h2>
-              <p className="mt-2 text-sm text-[var(--ink-muted)]">
-                Drag the items below to rank all goals in priority order — most important at the top.
-              </p>
+              <h2 className="text-3xl font-bold text-[var(--petrol)]">Ordena tus objetivos principales de negocio</h2>
+              <p className="mt-2 text-sm text-[var(--ink-muted)]">Arrastra los elementos para ordenarlos por prioridad — el más importante arriba.</p>
               <div className="mt-6">
                 <DragRankList items={rankedGoals.length > 0 ? rankedGoals : currentGoals} onReorder={setRankedGoals} />
               </div>
             </div>
           )}
 
-          {/* Step 3: Team Scale */}
+          {/* Step 3: Escala del Equipo */}
           {step === 3 && (
-            <ChoiceGrid title="What is the current scale of your core team?" options={teamSizes}
+            <ChoiceGrid title="¿Cuál es la escala actual de tu equipo principal?" options={teamSizes}
               value={answers.teamSize} onSelect={(v) => update("teamSize", v)} />
           )}
 
-          {/* Step 4: Tech Stack */}
+          {/* Step 4: Stack Tecnológico */}
           {step === 4 && (
             <div>
-              <h2 className="text-3xl font-bold text-[var(--petrol)]">Tech Stack</h2>
-              <p className="mt-2 text-sm text-[var(--ink-muted)]">
-                Every category is mandatory. Select all tools that apply — or choose <strong>None</strong> if unused.
-              </p>
+              <h2 className="text-3xl font-bold text-[var(--petrol)]">Stack Tecnológico</h2>
+              <p className="mt-2 text-sm text-[var(--ink-muted)]">Todas las categorías son obligatorias. Selecciona todas las herramientas que apliquen — o elige <strong>Ninguna</strong> si no la usas.</p>
               {!allGroupsAnswered && (
                 <div className="mt-3 rounded-lg border border-[rgba(240,144,60,0.4)] bg-[rgba(240,144,60,0.07)] px-4 py-2 text-xs text-[var(--tangerine)]">
-                  {toolGroups.filter((g) => !groupToolIds(g.label, g.tools).some((id) => answers.tools.includes(id))).length} categories remaining
+                  {toolGroups.filter((g) => !groupToolIds(g.label, g.tools).some((id) => answers.tools.includes(id))).length} categorías pendientes
                 </div>
               )}
               <div className="mt-6 grid gap-6">
@@ -284,16 +264,16 @@ export default function AssessmentPage() {
                         ))}
                         <button type="button" onClick={() => toggleTool(`${group.label}:Other`, group.label)}
                           className={`rounded-lg border px-3 py-2 text-sm transition ${answers.tools.includes(`${group.label}:Other`) ? "border-[var(--tangerine)] bg-[rgba(240,144,60,0.1)] text-[var(--petrol)] font-semibold" : "border-[var(--line)] bg-[var(--panel)] text-[var(--charcoal)] hover:border-[var(--petrol)]"}`}>
-                          Other
+                          Otro
                         </button>
                         <button type="button" onClick={() => toggleTool(`${group.label}:None`, group.label)}
                           className={`rounded-lg border px-3 py-2 text-sm transition ${answers.tools.includes(`${group.label}:None`) ? "border-[var(--ink-muted)] bg-[var(--panel-2)] text-[var(--charcoal)] font-semibold" : "border-[var(--line)] bg-[var(--panel)] text-[var(--charcoal)] hover:border-[var(--petrol)]"}`}>
-                          None
+                          Ninguna
                         </button>
                       </div>
                       {answers.tools.includes(`${group.label}:Other`) && (
                         <input className="mt-2 h-10 w-64 rounded-lg border border-[var(--tangerine)] bg-white px-3 text-sm text-[var(--charcoal)] outline-none placeholder:text-[var(--ink-muted)] focus:ring-1 focus:ring-[var(--tangerine)]"
-                          placeholder={`Specify ${group.label} tool…`}
+                          placeholder={`Especifica herramienta de ${group.label}…`}
                           value={otherInputs.toolGroupOthers[group.label] ?? ""}
                           onChange={(e) => setOtherInputs((o) => ({ ...o, toolGroupOthers: { ...o.toolGroupOthers, [group.label]: e.target.value } }))} />
                       )}
@@ -304,19 +284,19 @@ export default function AssessmentPage() {
             </div>
           )}
 
-          {/* Step 5: Business Metrics */}
+          {/* Step 5: Métricas */}
           {step === 5 && (
             <div>
-              <h2 className="text-3xl font-bold text-[var(--petrol)]">Business Metrics</h2>
-              <p className="mt-2 text-sm text-[var(--ink-muted)]">Select the option that best describes your current situation for each metric. All six must be answered.</p>
+              <h2 className="text-3xl font-bold text-[var(--petrol)]">Métricas del Negocio</h2>
+              <p className="mt-2 text-sm text-[var(--ink-muted)]">Selecciona la opción que mejor describa tu situación actual para cada métrica. Las seis deben ser respondidas.</p>
               {!allMetricsTouched && (
                 <div className="mt-3 rounded-lg border border-[rgba(240,144,60,0.4)] bg-[rgba(240,144,60,0.07)] px-4 py-2 text-xs text-[var(--tangerine)]">
-                  {METRIC_KEYS.length - touchedMetrics.size} metric{METRIC_KEYS.length - touchedMetrics.size === 1 ? "" : "s"} remaining
+                  {METRIC_KEYS.length - touchedMetrics.size} métrica{METRIC_KEYS.length - touchedMetrics.size === 1 ? "" : "s"} pendiente{METRIC_KEYS.length - touchedMetrics.size === 1 ? "" : "s"}
                 </div>
               )}
               <div className="mt-5 grid gap-6">
                 {metricDefinitions.map((def) => (
-                  <MetricChoiceCard key={String(def.key)} definition={def}
+                  <MetricChoiceCardES key={String(def.key)} definition={def}
                     value={touchedMetrics.has(String(def.key)) ? (answers[def.key] as number) : null}
                     onSelect={(v) => touchMetric(String(def.key), v)} />
                 ))}
@@ -324,23 +304,21 @@ export default function AssessmentPage() {
             </div>
           )}
 
-          {/* Step 6: Finance */}
+          {/* Step 6: Finanzas */}
           {step === 6 && (
             <div>
-              <h2 className="text-3xl font-bold text-[var(--petrol)]">Finance</h2>
-              <p className="mt-2 text-sm text-[var(--ink-muted)]">
-                These figures generate an estimated savings and recovery range — not a guarantee.
-              </p>
+              <h2 className="text-3xl font-bold text-[var(--petrol)]">Finanzas</h2>
+              <p className="mt-2 text-sm text-[var(--ink-muted)]">Estas cifras generan un rango estimado de ahorros y recuperación — no es una garantía.</p>
               <div className="mt-6 grid gap-6">
-                <FinanceRange label="Monthly Inbound Opportunities" hint="New leads or prospects entering your pipeline each month."
+                <FinanceRange label="Oportunidades Entrantes Mensuales" hint="Nuevos prospectos o leads que entran a tu pipeline cada mes."
                   min={0} max={500} step={10} value={answers.monthlyOpportunities} onChange={(v) => update("monthlyOpportunities", v)} />
-                <FinanceRange label="Monthly Outbound Activities" hint="Proactive outbound contacts, campaigns, or follow-ups initiated each month."
+                <FinanceRange label="Actividades Salientes Mensuales" hint="Contactos salientes, campañas o seguimientos iniciados cada mes."
                   min={0} max={500} step={10} value={answers.outboundLeads} onChange={(v) => update("outboundLeads", v)} />
-                <FinanceRange label="Average Strategic Hourly Value" hint="Estimated hourly value of leadership or senior team time."
+                <FinanceRange label="Valor Estratégico por Hora Promedio" hint="Valor estimado por hora del tiempo de liderazgo o equipo senior."
                   prefix="$" suffix="/hr" min={25} max={150} step={5} value={answers.hourlyValue} onChange={(v) => update("hourlyValue", v)} />
                 <div>
-                  <div className="mb-1 font-semibold text-[var(--petrol)]">Average Deal Size / Contract Value</div>
-                  <div className="mb-3 text-sm text-[var(--ink-muted)]">Select the range that best represents your typical contract value.</div>
+                  <div className="mb-1 font-semibold text-[var(--petrol)]">Tamaño Promedio de Contrato / Negocio</div>
+                  <div className="mb-3 text-sm text-[var(--ink-muted)]">Selecciona el rango que mejor represente el valor típico de tu contrato.</div>
                   <div className="grid gap-2 md:grid-cols-2">
                     {dealSizeRanges.map(({ label }) => (
                       <button key={label} type="button"
@@ -352,8 +330,8 @@ export default function AssessmentPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="mb-1 font-semibold text-[var(--petrol)]">Primary Business Funding Structure</div>
-                  <div className="mb-3 text-sm text-[var(--ink-muted)]">Select the funding model that best describes your business.</div>
+                  <div className="mb-1 font-semibold text-[var(--petrol)]">Estructura Principal de Financiamiento</div>
+                  <div className="mb-3 text-sm text-[var(--ink-muted)]">Selecciona el modelo de financiamiento que mejor describe tu negocio.</div>
                   <div className="grid gap-2 md:grid-cols-2">
                     {fundingStructures.map((option) => (
                       <button key={option} type="button"
@@ -370,14 +348,13 @@ export default function AssessmentPage() {
 
           {/* Navigation */}
           <div className="mt-8 flex items-center justify-between border-t border-[var(--line)] pt-5">
-            <button type="button" onClick={() => { setStep(Math.max(0, step - 1)); window.scrollTo({ top: 0 }); }}
-              disabled={step === 0}
+            <button type="button" onClick={() => { setStep(Math.max(0, step - 1)); window.scrollTo({ top: 0 }); }} disabled={step === 0}
               className="inline-flex h-11 items-center gap-2 rounded-lg border border-[var(--line)] px-4 text-sm font-medium text-[var(--petrol)] transition hover:border-[var(--petrol)] disabled:opacity-40">
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} /> Atrás
             </button>
             <button type="button" onClick={next} disabled={!canContinue}
               className="inline-flex h-11 items-center gap-2 rounded-lg bg-[var(--tangerine)] px-6 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-50">
-              {step === STEPS.length - 1 ? "See My Results" : "Continue"} <ArrowRight size={16} />
+              {step === STEPS.length - 1 ? "Ver Mis Resultados" : "Continuar"} <ArrowRight size={16} />
             </button>
           </div>
         </section>
@@ -394,21 +371,16 @@ function ContactInput({ label, type = "text", value, onChange, required = false,
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-[var(--petrol)]">
-        {label}{required && <span className="ml-1 text-[var(--tangerine)]">*</span>}
-      </span>
+      <span className="text-sm font-medium text-[var(--petrol)]">{label}{required && <span className="ml-1 text-[var(--tangerine)]">*</span>}</span>
       {hint && <div className="mt-0.5 text-xs text-[var(--ink-muted)]">{hint}</div>}
-      <input
-        className={`mt-2 h-12 w-full rounded-lg border bg-white px-3 text-[var(--charcoal)] outline-none transition focus:border-[var(--petrol)] focus:ring-1 focus:ring-[var(--petrol)] ${error ? "border-red-400" : "border-[var(--line)]"}`}
+      <input className={`mt-2 h-12 w-full rounded-lg border bg-white px-3 text-[var(--charcoal)] outline-none transition focus:border-[var(--petrol)] focus:ring-1 focus:ring-[var(--petrol)] ${error ? "border-red-400" : "border-[var(--line)]"}`}
         type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} />
       {error && <div className="mt-1 text-xs text-red-500">{error}</div>}
     </label>
   );
 }
 
-function ChoiceGrid({ title, options, value, onSelect }: {
-  title: string; options: string[]; value: string; onSelect: (v: string) => void;
-}) {
+function ChoiceGrid({ title, options, value, onSelect }: { title: string; options: string[]; value: string; onSelect: (v: string) => void; }) {
   return (
     <div>
       <h2 className="text-3xl font-bold text-[var(--petrol)]">{title}</h2>
@@ -427,7 +399,6 @@ function ChoiceGrid({ title, options, value, onSelect }: {
 function DragRankList({ items, onReorder }: { items: string[]; onReorder: (i: string[]) => void }) {
   const dragIndexRef = useRef<number | null>(null);
   const [dragOver, setDragOver] = useState<number | null>(null);
-
   function handleDragOver(e: React.DragEvent, index: number) { e.preventDefault(); setDragOver(index); }
   function handleDrop(index: number) {
     const from = dragIndexRef.current;
@@ -435,18 +406,12 @@ function DragRankList({ items, onReorder }: { items: string[]; onReorder: (i: st
     const next = [...items]; const [moved] = next.splice(from, 1); next.splice(index, 0, moved);
     dragIndexRef.current = null; setDragOver(null); onReorder(next);
   }
-  function move(index: number, dir: -1 | 1) {
-    const next = [...items]; [next[index], next[index + dir]] = [next[index + dir], next[index]]; onReorder(next);
-  }
-
+  function move(index: number, dir: -1 | 1) { const next = [...items]; [next[index], next[index + dir]] = [next[index + dir], next[index]]; onReorder(next); }
   return (
     <div className="grid gap-2">
       {items.map((item, index) => (
-        <div key={item} draggable
-          onDragStart={() => { dragIndexRef.current = index; }}
-          onDragOver={(e) => handleDragOver(e, index)}
-          onDrop={() => handleDrop(index)}
-          onDragEnd={() => { dragIndexRef.current = null; setDragOver(null); }}
+        <div key={item} draggable onDragStart={() => { dragIndexRef.current = index; }}
+          onDragOver={(e) => handleDragOver(e, index)} onDrop={() => handleDrop(index)} onDragEnd={() => { dragIndexRef.current = null; setDragOver(null); }}
           className={`flex cursor-grab items-center gap-3 rounded-lg border p-3 transition active:cursor-grabbing ${dragOver === index ? "border-[var(--tangerine)] bg-[rgba(240,144,60,0.08)]" : "border-[var(--line)] bg-white"}`}>
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--petrol)] text-xs font-bold text-white">{index + 1}</span>
           <span className="flex-1 text-sm text-[var(--charcoal)]">{item}</span>
@@ -457,36 +422,34 @@ function DragRankList({ items, onReorder }: { items: string[]; onReorder: (i: st
           <GripVertical size={14} className="hidden shrink-0 text-[var(--ink-muted)] sm:block" />
         </div>
       ))}
-      <p className="mt-2 text-xs text-[var(--ink-muted)]">Drag to reorder · Use arrows on mobile · #1 = highest priority</p>
+      <p className="mt-2 text-xs text-[var(--ink-muted)]">Arrastra para reordenar · Usa las flechas en móvil · #1 = mayor prioridad</p>
     </div>
   );
 }
 
-function MetricChoiceCard({ definition, value, onSelect }: {
+function MetricChoiceCardES({ definition, value, onSelect }: {
   definition: (typeof metricDefinitions)[0]; value: number | null; onSelect: (v: number) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const key = String(definition.key);
+  const labelES = METRIC_LABELS_ES[key] ?? definition.label;
+  const scalesES = SCALE_ES[key] ?? definition.scaleDescriptions;
   return (
     <div className="rounded-xl border border-[var(--line)] bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
-          <div className="font-bold text-[var(--petrol)]">
-            {definition.label}
-            {definition.unit && <span className="ml-2 text-xs font-normal text-[var(--ink-muted)]">({definition.unit})</span>}
-          </div>
+          <div className="font-bold text-[var(--petrol)]">{labelES}</div>
           <div className="mt-1 text-sm text-[var(--charcoal)]">{definition.shortDesc}</div>
           <button type="button" onClick={() => setExpanded((e) => !e)}
             className="mt-1.5 inline-flex items-center gap-1 text-xs text-[var(--tangerine)] hover:underline">
-            {expanded ? <>Hide details <ChevronUp size={12} /></> : <>What does this mean? <ChevronDown size={12} /></>}
+            {expanded ? <>Ocultar detalles <ChevronUp size={12} /></> : <>¿Qué significa esto? <ChevronDown size={12} /></>}
           </button>
           {expanded && <div className="mt-2 whitespace-pre-wrap rounded-lg bg-[var(--panel)] p-3 text-xs leading-6 text-[var(--charcoal)]">{definition.detailExpanded}</div>}
         </div>
-        {value !== null && (
-          <div className="shrink-0 rounded-lg bg-[rgba(240,144,60,0.1)] px-3 py-1 text-xs font-bold text-[var(--tangerine)]">{value}/5</div>
-        )}
+        {value !== null && <div className="shrink-0 rounded-lg bg-[rgba(240,144,60,0.1)] px-3 py-1 text-xs font-bold text-[var(--tangerine)]">{value}/5</div>}
       </div>
       <div className="mt-4 grid gap-2">
-        {definition.scaleDescriptions.map((desc, i) => (
+        {scalesES.map((desc, i) => (
           <button key={i} type="button" onClick={() => onSelect(i)}
             className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-left text-sm transition ${value === i ? "border-[var(--tangerine)] bg-[rgba(240,144,60,0.1)] text-[var(--petrol)]" : "border-[var(--line)] bg-[var(--panel)] text-[var(--charcoal)] hover:border-[var(--petrol)]"}`}>
             <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${value === i ? "bg-[var(--tangerine)] text-white" : "bg-[var(--panel-2)] text-[var(--ink-muted)]"}`}>{i}</span>
@@ -499,8 +462,7 @@ function MetricChoiceCard({ definition, value, onSelect }: {
 }
 
 function FinanceRange({ label, hint, value, min, max, step = 1, prefix = "", suffix = "", onChange }: {
-  label: string; hint?: string; value: number; min: number; max: number;
-  step?: number; prefix?: string; suffix?: string; onChange: (v: number) => void;
+  label: string; hint?: string; value: number; min: number; max: number; step?: number; prefix?: string; suffix?: string; onChange: (v: number) => void;
 }) {
   return (
     <label className="block rounded-xl border border-[var(--line)] bg-white p-5 shadow-sm">
@@ -509,14 +471,11 @@ function FinanceRange({ label, hint, value, min, max, step = 1, prefix = "", suf
           <div className="font-semibold text-[var(--petrol)]">{label}</div>
           {hint && <div className="mt-1 text-sm text-[var(--ink-muted)]">{hint}</div>}
         </div>
-        <div className="shrink-0 rounded-lg bg-[rgba(240,144,60,0.1)] px-3 py-1 text-sm font-bold text-[var(--tangerine)]">
-          {prefix}{value.toLocaleString()}{suffix}
-        </div>
+        <div className="shrink-0 rounded-lg bg-[rgba(240,144,60,0.1)] px-3 py-1 text-sm font-bold text-[var(--tangerine)]">{prefix}{value.toLocaleString()}{suffix}</div>
       </div>
       <input className="mt-4 w-full accent-[var(--tangerine)]" type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} />
       <div className="mt-1 flex justify-between text-[10px] text-[var(--ink-muted)]">
-        <span>{prefix}{min.toLocaleString()}{suffix}</span>
-        <span>{prefix}{max.toLocaleString()}{suffix}</span>
+        <span>{prefix}{min.toLocaleString()}{suffix}</span><span>{prefix}{max.toLocaleString()}{suffix}</span>
       </div>
     </label>
   );

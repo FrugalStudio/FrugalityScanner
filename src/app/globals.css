@@ -1,17 +1,19 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 :root {
-  --background: #0b2229;
-  --foreground: #f0ece2;
-  --panel: #102830;
-  --panel-2: #17333d;
-  --line: rgba(32, 80, 90, 0.5);
+  --background: #ffffff;
+  --foreground: #444444;
+  --panel: #f4f7f8;
+  --panel-2: #eaf0f2;
+  --line: rgba(32, 80, 90, 0.18);
   --petrol: #20505A;
   --tangerine: #F0903C;
   --charcoal: #444444;
   --accent: #F0903C;
-  --accent-strong: #f5a460;
-  --ink-muted: #8fa8b0;
+  --accent-strong: #d97a28;
+  --ink-muted: #6b8a92;
 }
 
 * {
@@ -26,9 +28,9 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: linear-gradient(180deg, #0b2229 0%, #0e2a31 44%, #112c34 100%);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: var(--charcoal);
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
 
 a {
@@ -45,13 +47,16 @@ textarea {
 
 .executive-grid {
   background-image:
-    linear-gradient(rgba(32, 80, 90, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(32, 80, 90, 0.12) 1px, transparent 1px);
+    linear-gradient(rgba(32, 80, 90, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(32, 80, 90, 0.05) 1px, transparent 1px);
   background-size: 56px 56px;
 }
 
 .brand-shell {
   background:
-    linear-gradient(90deg, rgba(32, 80, 90, 0.18), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 18rem);
+    linear-gradient(90deg, rgba(32, 80, 90, 0.04), transparent 40%);
+}
+
+.section-alt {
+  background-color: #f0f5f6;
 }

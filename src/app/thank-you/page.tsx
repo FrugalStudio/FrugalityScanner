@@ -21,13 +21,14 @@ const pricingTiers = [
 
 export default function ThankYouPage() {
   return (
-    <main className="min-h-screen px-6 py-12">
+    <main className="min-h-screen bg-[var(--panel)] px-6 py-12">
       <div className="mx-auto max-w-3xl">
 
         {/* Confirmation */}
-        <section className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-8 shadow-2xl">
+        <section className="rounded-xl border border-[var(--line)] bg-white p-8 shadow-sm">
           <CalendarCheck className="text-[var(--tangerine)]" size={40} />
-          <p className="mt-5 text-lg leading-7 text-[#8fa8b0]">
+          <h1 className="mt-4 text-2xl font-bold text-[var(--petrol)]">Report Sent</h1>
+          <p className="mt-4 text-base leading-7 text-[var(--charcoal)]">
             Check your inbox. Your personalized asset analysis has been sent. Now, it is time to isolate the
             highest-value bottlenecks and prioritize the operational fixes required to recover your team&apos;s
             efficiency.
@@ -35,18 +36,18 @@ export default function ThankYouPage() {
         </section>
 
         {/* Frugal Audit explanation */}
-        <section className="mt-6 rounded-lg border border-[var(--line)] bg-[var(--panel)] p-8">
-          <h2 className="text-2xl font-bold text-white">What Comes Next: The 1-Day Frugal Audit</h2>
-          <p className="mt-4 leading-7 text-[#8fa8b0]">
+        <section className="mt-6 rounded-xl border border-[var(--line)] bg-white p-8 shadow-sm">
+          <h2 className="text-2xl font-bold text-[var(--petrol)]">What Comes Next: The 1-Day Frugal Audit</h2>
+          <p className="mt-4 leading-7 text-[var(--charcoal)]">
             Your diagnostic shows where operational waste may be costing your business time, money, and
             execution speed.
           </p>
-          <p className="mt-3 leading-7 text-[#8fa8b0]">
-            The <strong className="text-white">Frugal Audit</strong> is a 1-day operational intelligence sprint
+          <p className="mt-3 leading-7 text-[var(--charcoal)]">
+            The <strong className="text-[var(--petrol)]">Frugal Audit</strong> is a 1-day operational intelligence sprint
             where Frugal Studio and Mindful Tech Automations review your workflows, software stack, lead flow,
             manual bottlenecks, documentation gaps, and founder dependency.
           </p>
-          <p className="mt-3 leading-7 text-[#8fa8b0]">
+          <p className="mt-3 leading-7 text-[var(--charcoal)]">
             You receive a clear operational roadmap showing what to simplify, what to automate, and what to fix
             first.
           </p>
@@ -58,7 +59,7 @@ export default function ThankYouPage() {
             {auditOutcomes.map((item) => (
               <li key={item} className="flex items-start gap-3">
                 <CheckCircle size={16} className="mt-0.5 shrink-0 text-[var(--tangerine)]" />
-                <span className="text-[#c4d6cd]">{item}</span>
+                <span className="text-[var(--charcoal)]">{item}</span>
               </li>
             ))}
           </ul>
@@ -67,7 +68,7 @@ export default function ThankYouPage() {
           <h3 className="mt-8 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--ink-muted)]">
             Project tiers
           </h3>
-          <div className="mt-4 overflow-hidden rounded-lg border border-[var(--line)]">
+          <div className="mt-4 overflow-hidden rounded-xl border border-[var(--line)]">
             {pricingTiers.map(({ tier, range }, i) => (
               <div
                 key={tier}
@@ -75,7 +76,7 @@ export default function ThankYouPage() {
                   i !== pricingTiers.length - 1 ? "border-b border-[var(--line)]" : ""
                 }`}
               >
-                <span className="font-medium text-white">{tier}</span>
+                <span className="font-medium text-[var(--petrol)]">{tier}</span>
                 <span className="font-semibold text-[var(--tangerine)]">{range}</span>
               </div>
             ))}
@@ -87,7 +88,7 @@ export default function ThankYouPage() {
               href={BOOKING_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-md bg-[var(--tangerine)] px-6 text-sm font-bold text-white transition hover:bg-[var(--accent-strong)]"
+              className="inline-flex h-12 items-center gap-2 rounded-lg bg-[var(--tangerine)] px-6 text-sm font-bold text-white transition hover:bg-[var(--accent-strong)]"
             >
               <CalendarCheck size={16} />
               Book a Discovery Call
