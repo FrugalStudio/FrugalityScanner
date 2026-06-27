@@ -12,7 +12,9 @@ type SubmitPayload = {
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as SubmitPayload;
-  const report = generateFallbackReport(payload.answers, payload.scores);
+  const contactName = payload.contact.firstName ?? "";
+  const companyName = payload.contact.company ?? "";
+  const report = generateFallbackReport(payload.answers, payload.scores, contactName, companyName);
 
   const record = {
     first_name: payload.contact.firstName,

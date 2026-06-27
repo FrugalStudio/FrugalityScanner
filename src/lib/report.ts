@@ -1,32 +1,127 @@
 import { currency, type AssessmentAnswers, type ScoreResult } from "./assessment";
 
-export function generateFallbackReport(answers: AssessmentAnswers, scores: ScoreResult) {
+const BOOKING_URL =
+  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2_Rp7RRFppwCG3x-cR9AguNsBnlwt84k5EWDaKDTewkmc72flE0i_IH3m0YJVABnEhaakYuAdE";
+
+export function generateFallbackReport(
+  answers: AssessmentAnswers,
+  scores: ScoreResult,
+  contactName?: string,
+  companyName?: string,
+) {
+  const greeting = contactName ? `Hi ${contactName},` : "Hi,";
+  const company = companyName ? ` for ${companyName}` : "";
+
   return [
-    "Executive Summary",
-    `The diagnostic indicates an Operational Intelligence Index of ${scores.operationalIntelligenceIndex}/100. The primary opportunity is to reduce recurring workflow drag before it compounds into a larger cost centre.`,
+    "═══════════════════════════════════════════════════════",
+    "  FRUGALITY SCANNER — OPERATIONAL INTELLIGENCE REPORT",
+    "  Frugal Studio powered by Mindful Tech",
+    "═══════════════════════════════════════════════════════",
     "",
-    "Friction Analysis",
-    `The Operational Friction Score is ${scores.operationalFrictionScore}/100. Manual handoffs, slow response loops, and fragmented ownership should be reviewed first.`,
+    greeting,
+    `Here is your complete Frugality Scanner diagnostic report${company}.`,
     "",
-    "Structural Debt Assessment",
-    `The Structural Debt Score is ${scores.structuralDebtScore}/100 across ${answers.tools.length} selected tools. Frugal Studio and Mindful Tech should map the handoffs between these systems before recommending automation.`,
+    "───────────────────────────────────────────────────────",
+    "  RECOMMENDED NEXT STEPS",
+    "───────────────────────────────────────────────────────",
     "",
-    "Founder Dependency Analysis",
-    `The Founder Dependency Index is ${scores.founderDependencyIndex}/100. Leadership time appears to be absorbed by operational coordination that can likely be delegated, documented, or systemised.`,
+    "Your diagnostic is complete. The next step is to review your highest-value operational bottlenecks and decide which fixes deserve priority.",
     "",
-    "Potential Savings Opportunity",
-    `${currency(scores.opportunityLow)}–${currency(scores.opportunityHigh)} per month could potentially be recovered through better process design, automation, and operating cadence. This is a diagnostic estimate — not a guarantee.`,
+    "▶ Book a Discovery Call with Frugal Studio powered by Mindful Tech:",
+    BOOKING_URL,
     "",
-    "Top Operational Bottlenecks",
-    ...scores.topFindings.map((finding, index) => `${index + 1}. ${finding}`),
+    "We will walk through your results, identify the highest-impact automation opportunities, and outline an execution roadmap tailored to your business.",
     "",
-    "Recommended Operational Fixes",
-    "1. Document the current lead-to-delivery workflow and identify every manual handoff.",
-    "2. Define response-time ownership for inbound opportunities.",
-    "3. Consolidate duplicate data capture and create a single source-of-truth policy.",
-    "4. Automate only after process ownership and exception paths are clear.",
+    "───────────────────────────────────────────────────────",
+    "  YOUR FRUGALITY SCORES",
+    "───────────────────────────────────────────────────────",
     "",
-    "Recommended Next Step",
-    "Book a Frugal Audit with Frugal Studio powered by Mindful Tech to validate the findings, quantify the highest-value workflow improvements, and design an execution plan.",
+    `  Operational Intelligence Index:  ${scores.operationalIntelligenceIndex}/100`,
+    `  (${oiiLabel(scores.operationalIntelligenceIndex)})`,
+    "",
+    `  Operational Friction Score:       ${scores.operationalFrictionScore}/100`,
+    `  (${inverseLabel(scores.operationalFrictionScore)})`,
+    "",
+    `  Founder Dependency Index:         ${scores.founderDependencyIndex}/100`,
+    `  (${inverseLabel(scores.founderDependencyIndex)})`,
+    "",
+    `  Structural Debt Score:            ${scores.structuralDebtScore}/100`,
+    "",
+    `  Estimated Savings Opportunity:    ${currency(scores.opportunityLow)}–${currency(scores.opportunityHigh)}/month`,
+    `  (Diagnostic estimate — not a guarantee)`,
+    "",
+    "───────────────────────────────────────────────────────",
+    "  TOP OPERATIONAL BOTTLENECKS",
+    "───────────────────────────────────────────────────────",
+    "",
+    ...scores.topFindings.map((finding, i) => `  ${i + 1}. ${finding}`),
+    "",
+    "───────────────────────────────────────────────────────",
+    "  FULL DIAGNOSTIC SUMMARY",
+    "───────────────────────────────────────────────────────",
+    "",
+    "Below you will find detailed explanations for each finding.",
+    "",
+    "OPERATIONAL INTELLIGENCE INDEX",
+    `Score: ${scores.operationalIntelligenceIndex}/100 — ${oiiLabel(scores.operationalIntelligenceIndex)}`,
+    "This composite index measures how efficiently your business operates across all assessed dimensions. A higher score indicates more streamlined, autonomous operations with less structural drag.",
+    "",
+    "OPERATIONAL FRICTION SCORE",
+    `Score: ${scores.operationalFrictionScore}/100 — ${inverseLabel(scores.operationalFrictionScore)}`,
+    "This score reflects manual handoffs, slow response loops, data re-entry, and fragmented process ownership. A lower score is better. Friction above 60 indicates structural improvements are overdue.",
+    "",
+    "FOUNDER DEPENDENCY INDEX",
+    `Score: ${scores.founderDependencyIndex}/100 — ${inverseLabel(scores.founderDependencyIndex)}`,
+    "This index measures how much daily execution depends on the founder's presence, approvals, or memory. A score above 60 means the business lacks the systems to operate autonomously — a significant growth ceiling.",
+    "",
+    "STRUCTURAL DEBT ASSESSMENT",
+    `Score: ${scores.structuralDebtScore}/100 — reflecting ${answers.tools.length} active tool(s) across the stack.`,
+    "Structural debt accumulates when tools multiply without integration, workflows are undocumented, and process ownership is unclear. Each item adds coordination overhead that compounds over time.",
+    "",
+    "POTENTIAL SAVINGS OPPORTUNITY",
+    `${currency(scores.opportunityLow)}–${currency(scores.opportunityHigh)} per month could potentially be recovered through better process design, targeted automation, and tighter operating cadence.`,
+    "This is a diagnostic estimate based on your inputs — not a guaranteed outcome.",
+    "",
+    "───────────────────────────────────────────────────────",
+    "  RECOMMENDED OPERATIONAL FIXES",
+    "───────────────────────────────────────────────────────",
+    "",
+    "  1. Document the current lead-to-delivery workflow and identify every manual handoff.",
+    "  2. Define clear response-time ownership for all inbound opportunities.",
+    "  3. Consolidate duplicate data capture and establish a single source-of-truth policy.",
+    "  4. Automate only after process ownership and exception paths are clearly defined.",
+    "",
+    "───────────────────────────────────────────────────────",
+    "  THE FRUGAL AUDIT — YOUR NEXT STEP",
+    "───────────────────────────────────────────────────────",
+    "",
+    "The Frugal Audit is a 1-day operational intelligence sprint where Frugal Studio and",
+    "Mindful Tech review your workflows, software stack, lead flow, manual bottlenecks,",
+    "documentation gaps, and founder dependency.",
+    "",
+    "You receive a clear operational roadmap showing what to simplify, what to automate,",
+    "and what to fix first — so you can recover capacity and scale without adding overhead.",
+    "",
+    "▶ Book your Discovery Call:",
+    BOOKING_URL,
+    "",
+    "───────────────────────────────────────────────────────",
+    "Frugal Studio powered by Mindful Tech",
+    "felipe@frugalstudio.design",
+    "───────────────────────────────────────────────────────",
   ].join("\n");
+}
+
+function oiiLabel(score: number) {
+  if (score >= 80) return "Optimized";
+  if (score >= 60) return "Moderate";
+  if (score >= 40) return "Needs Attention";
+  return "Critical";
+}
+
+function inverseLabel(score: number) {
+  if (score > 70) return "Critical";
+  if (score > 50) return "Needs Attention";
+  if (score > 30) return "Moderate";
+  return "Optimized";
 }

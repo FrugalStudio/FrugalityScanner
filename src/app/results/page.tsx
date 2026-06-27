@@ -6,6 +6,9 @@ import { CheckCircle, FileText } from "lucide-react";
 import { currency, metricDefinitions, type AssessmentAnswers, type ScoreResult } from "@/lib/assessment";
 import { ScoreDial } from "@/components/ScoreDial";
 
+const BOOKING_URL =
+  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2_Rp7RRFppwCG3x-cR9AguNsBnlwt84k5EWDaKDTewkmc72flE0i_IH3m0YJVABnEhaakYuAdE";
+
 type ContactInfo = {
   firstName: string;
   lastName: string;
@@ -78,8 +81,7 @@ export default function ResultsPage() {
 
   function handleReceiveReport() {
     setConfirmVisible(true);
-    // Navigate to closing page after confirmation is displayed
-    setTimeout(() => router.push("/thank-you"), 2200);
+    setTimeout(() => router.push("/thank-you"), 2400);
   }
 
   return (
@@ -92,55 +94,91 @@ export default function ResultsPage() {
           <h1 className="mt-2 text-4xl font-bold text-white">
             {contact.company ? `${contact.company} — ` : ""}Frugality Scores
           </h1>
-          <p className="mt-2 text-[var(--ink-muted)]">
+          <p className="mt-1 text-[var(--ink-muted)]">
             Prepared for {contact.firstName} {contact.lastName}
           </p>
         </header>
 
-        {/* Report status banner */}
-        {reportStatus === "sending" && !confirmVisible && (
-          <div className="mb-6 rounded-lg border border-[var(--line)] bg-[rgba(32,80,90,0.1)] px-5 py-4 text-sm text-[var(--ink-muted)]">
-            Generating your full report…
-          </div>
-        )}
-        {confirmVisible && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-[rgba(240,144,60,0.3)] bg-[rgba(240,144,60,0.08)] px-5 py-4">
-            <CheckCircle size={18} className="shrink-0 text-[var(--tangerine)]" />
-            <span className="text-sm text-white">
-              Your full report is on its way to{" "}
-              <strong className="text-[var(--tangerine)]">{contact.email}</strong>
-            </span>
-          </div>
-        )}
-        {reportStatus === "error" && !confirmVisible && (
-          <div className="mb-6 rounded-lg border border-red-900/40 bg-red-950/30 px-5 py-4 text-sm text-red-300">
-            Report delivery failed — please contact us at info@frugalstudio.design
-          </div>
-        )}
+        {/* ── CTA + status banners — ABOVE scores ─────────────────────── */}
+        <div className="mb-8 rounded-lg border border-[var(--line)] bg-[var(--panel)] p-5">
+          {confirmVisible ? (
+            <div className="flex items-center gap-3">
+              <CheckCircle size={18} className="shrink-0 text-[var(--tangerine)]" />
+              <span className="text-sm text-white">
+                Your full report is on its way to{" "}
+                <strong className="text-[var(--tangerine)]">{contact.email}</strong>. Redirecting…
+              </span>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="font-semibold text-white">Ready to receive your full report?</div>
+                <div className="mt-1 text-sm text-[var(--ink-muted)]">
+                  {reportStatus === "sending"
+                    ? "Generating your report — this only takes a moment…"
+                    : reportStatus === "error"
+                      ? "There was an issue preparing your report. Click below to proceed anyway."
+                      : "Your report is ready. Click below to have it sent to your email."}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleReceiveReport}
+                className="inline-flex h-12 shrink-0 items-center gap-2 rounded-md bg-[var(--tangerine)] px-6 text-sm font-bold text-white transition hover:bg-[var(--accent-strong)]"
+              >
+                <FileText size={16} />
+                Click here to receive full report
+              </button>
+            </div>
+          )}
+          {reportStatus === "error" && !confirmVisible && (
+            <p className="mt-3 text-xs text-red-400">
+              Delivery issue detected — please also email us at{" "}
+              <a href="mailto:felipe@frugalstudio.design" className="underline">
+                felipe@frugalstudio.design
+              </a>
+            </p>
+          )}
+        </div>
 
-        {/* Composite scores */}
+        {/* ── Composite scores ─────────────────────────────────────────── */}
         <div className="grid gap-4 md:grid-cols-2">
-          <ScoreDial label="Operational Intelligence Index" value={scores.operationalIntelligenceIndex} />
+          {/* OII: high = good */}
+          <ScoreDial
+            label="Operational Intelligence Index"
+            value={scores.operationalIntelligenceIndex}
+            highIsGood={true}
+          />
+          {/* Savings: shown as currency, not a score dial */}
           <div className="rounded-lg border border-[var(--line)] bg-[var(--panel)] p-5">
             <div className="text-xs uppercase tracking-[0.18em] text-[var(--ink-muted)]">
               Estimated Savings Opportunity
             </div>
-            <div className="mt-4 text-4xl font-bold text-[var(--tangerine)]">
+            <div className="mt-4 text-4xl font-bold text-[#5ecb8a]">
               {currency(scores.opportunityLow)}–{currency(scores.opportunityHigh)}
             </div>
-            <div className="mt-2 text-xs text-[var(--ink-muted)]">
-              Estimated monthly recovery range — not a guarantee
-            </div>
+            <div className="mt-2 text-xs font-semibold text-[#5ecb8a]">Monthly recovery potential</div>
+            <div className="mt-1 text-xs text-[var(--ink-muted)]">Diagnostic estimate — not a guarantee</div>
           </div>
-          <ScoreDial label="Operational Friction Score" value={scores.operationalFrictionScore} />
-          <ScoreDial label="Founder Dependency Index" value={scores.founderDependencyIndex} />
+          {/* OFS: high = BAD */}
+          <ScoreDial
+            label="Operational Friction Score"
+            value={scores.operationalFrictionScore}
+            highIsGood={false}
+          />
+          {/* FDI: high = BAD */}
+          <ScoreDial
+            label="Founder Dependency Index"
+            value={scores.founderDependencyIndex}
+            highIsGood={false}
+          />
         </div>
 
-        {/* Top findings */}
+        {/* ── Top findings ─────────────────────────────────────────────── */}
         <div className="mt-6 rounded-lg border border-[var(--line)] bg-[var(--panel)] p-6">
           <h2 className="text-xl font-bold text-white">Top Diagnostic Findings</h2>
           <p className="mt-1 text-sm text-[var(--ink-muted)]">
-            These are your highest-priority operational friction points based on your responses.
+            Your highest-priority operational friction points based on your responses.
           </p>
           <div className="mt-4 grid gap-3">
             {scores.topFindings.map((finding, i) => (
@@ -152,15 +190,23 @@ export default function ResultsPage() {
           </div>
         </div>
 
-        {/* Per-metric breakdown — vertical */}
+        {/* ── Per-metric breakdown — vertical ──────────────────────────── */}
         <div className="mt-6">
           <h2 className="mb-4 text-xl font-bold text-white">Metric Breakdown</h2>
+          <p className="mb-4 text-sm text-[var(--ink-muted)]">
+            All metrics run 0 (best) → 5 (worst). Higher bars indicate more operational drag.
+          </p>
           <div className="grid gap-4">
             {metricDefinitions.map((def) => {
               const rawValue = answers[def.key] as number;
               const scaleLabel = def.scaleLabels[rawValue] ?? "";
               const pct = (rawValue / 5) * 100;
-              const isHigh = rawValue >= 4;
+              const severity =
+                rawValue >= 4
+                  ? { badge: "bg-[rgba(255,100,80,0.15)] text-[#ff8e7d]", bar: "bg-[#ff8e7d]" }
+                  : rawValue >= 3
+                    ? { badge: "bg-[rgba(240,144,60,0.15)] text-[var(--tangerine)]", bar: "bg-[var(--tangerine)]" }
+                    : { badge: "bg-[rgba(94,203,138,0.12)] text-[#5ecb8a]", bar: "bg-[#5ecb8a]" };
               return (
                 <div
                   key={String(def.key)}
@@ -178,23 +224,13 @@ export default function ResultsPage() {
                       </div>
                       <div className="mt-1 text-sm text-[var(--ink-muted)]">{def.shortDesc}</div>
                     </div>
-                    <div
-                      className={`shrink-0 rounded-md px-3 py-1 text-sm font-bold ${
-                        isHigh
-                          ? "bg-[rgba(255,100,80,0.15)] text-[#ff8e7d]"
-                          : rawValue >= 3
-                            ? "bg-[rgba(240,144,60,0.15)] text-[var(--tangerine)]"
-                            : "bg-[rgba(94,203,138,0.12)] text-[#5ecb8a]"
-                      }`}
-                    >
+                    <div className={`shrink-0 rounded-md px-3 py-1 text-sm font-bold ${severity.badge}`}>
                       {rawValue}/5
                     </div>
                   </div>
                   <div className="mt-3 h-1.5 rounded-full bg-white/10">
                     <div
-                      className={`h-1.5 rounded-full transition-all ${
-                        isHigh ? "bg-[#ff8e7d]" : rawValue >= 3 ? "bg-[var(--tangerine)]" : "bg-[#5ecb8a]"
-                      }`}
+                      className={`h-1.5 rounded-full transition-all ${severity.bar}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -207,23 +243,27 @@ export default function ResultsPage() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {!confirmVisible ? (
-            <button
-              type="button"
-              onClick={handleReceiveReport}
-              className="inline-flex h-12 items-center gap-2 rounded-md bg-[var(--tangerine)] px-6 text-sm font-bold text-white transition hover:bg-[var(--accent-strong)]"
-            >
-              <FileText size={16} />
-              Click here to receive full report
-            </button>
-          ) : (
-            <div className="text-sm text-[var(--ink-muted)]">Redirecting to next steps…</div>
-          )}
+        {/* Bottom retake link */}
+        <div className="mt-8 flex justify-end">
           <a href="/assessment" className="text-sm text-[var(--ink-muted)] hover:text-white">
             Retake assessment
           </a>
+        </div>
+
+        {/* Booking nudge */}
+        <div className="mt-4 rounded-lg border border-[rgba(240,144,60,0.25)] bg-[rgba(240,144,60,0.06)] p-5 text-center">
+          <p className="text-sm text-[var(--ink-muted)]">
+            Want to act on these findings now?{" "}
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[var(--tangerine)] hover:underline"
+            >
+              Book a Discovery Call
+            </a>{" "}
+            with Frugal Studio powered by Mindful Tech.
+          </p>
         </div>
       </div>
     </main>
