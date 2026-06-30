@@ -37,8 +37,15 @@ export default function Home() {
       <section className="executive-grid brand-shell border-b border-[var(--line)] px-6 py-20 lg:py-28">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
-            <div className="mb-6 inline-flex rounded-full border border-[rgba(240,144,60,0.4)] bg-[rgba(240,144,60,0.08)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--tangerine)]">
-              Frugal Studio powered by Mindful Tech Automations
+            <div className="mb-8">
+              <img
+                src="/logo-cobranded.png"
+                alt="Frugal Studio powered by Mindful Tech Automations"
+                className="h-20 w-auto object-contain"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
             </div>
             <h1 className="text-5xl font-bold leading-[1.06] text-[var(--petrol)] md:text-6xl">
               How Much Operational Waste Is Hiding Inside Your Business?
