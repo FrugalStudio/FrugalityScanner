@@ -43,16 +43,6 @@ export default function HomeES() {
       <section className="executive-grid brand-shell border-b border-[var(--line)] px-6 py-20 lg:py-28">
         <div className="mx-auto max-w-7xl">
           <div className="max-w-3xl">
-            <div className="mb-8">
-              <img
-                src="/logo-cobranded.png"
-                alt="Frugal Studio powered by Mindful Tech Automations"
-                className="h-20 w-auto object-contain"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
             <h1 className="text-5xl font-bold leading-[1.06] text-[var(--petrol)] md:text-6xl">
               ¿Cuánto desperdicio operacional se esconde dentro de tu negocio?
             </h1>
@@ -104,16 +94,23 @@ export default function HomeES() {
       {/* ── Para quién — 3 columnas ───────────────────────────────────── */}
       <section className="section-alt border-b border-[var(--line)] px-6 py-16">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-[var(--petrol)]">Construido para decisiones operacionales más inteligentes.</h2>
-          </div>
-          <div className="grid gap-5 md:grid-cols-3">
-            {infoBoxes.map(({ title, text }) => (
-              <div key={title} className="rounded-xl border border-[var(--line)] bg-white p-6 shadow-sm">
-                <h3 className="font-bold text-[var(--petrol)]">{title}</h3>
-                <p className="mt-2 text-sm leading-7 text-[var(--charcoal)]">{text}</p>
-              </div>
-            ))}
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div className="flex flex-col gap-5">
+              {infoBoxes.map(({ title, text }) => (
+                <div key={title} className="rounded-xl border border-[var(--line)] bg-white p-6 shadow-sm">
+                  <h3 className="font-bold text-[var(--petrol)]">{title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-[var(--charcoal)]">{text}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-center lg:justify-end">
+              <img
+                src="/logo-cobranded.png"
+                alt="Frugal Studio powered by Mindful Tech Automations"
+                className="w-full max-w-sm object-contain"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            </div>
           </div>
         </div>
       </section>
