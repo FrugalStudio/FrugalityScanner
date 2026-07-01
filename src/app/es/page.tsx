@@ -42,25 +42,35 @@ export default function HomeES() {
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="executive-grid brand-shell border-b border-[var(--line)] px-6 py-20 lg:py-28">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <h1 className="text-5xl font-bold leading-[1.06] text-[var(--petrol)] md:text-6xl">
-              ¿Cuánto desperdicio operacional se esconde dentro de tu negocio?
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--charcoal)]">
-              Un diagnóstico de 10 minutos para detectar las fugas ocultas que drenan tu negocio. Recupera el
-              tiempo y los recursos que necesitas para escalar.
-            </p>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--ink-muted)]">
-              Nuestra consultoría de automatización con IA transforma estos cuellos de botella operacionales en
-              flujos de trabajo autónomos, asegurando tus márgenes y brindando la agilidad estructural necesaria
-              para un crecimiento de alta velocidad. Empieza aquí.
-            </p>
-            <div className="mt-10 flex flex-col items-start gap-2">
-              <span className="text-sm text-[var(--ink-muted)]">Desplázate para saber más</span>
-              <svg className="animate-bounce text-[var(--tangerine)]" width="24" height="24" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 5v14M5 12l7 7 7-7" />
-              </svg>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+              <h1 className="text-5xl font-bold leading-[1.06] text-[var(--petrol)] md:text-6xl">
+                ¿Cuánto desperdicio operacional se esconde dentro de tu negocio?
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--charcoal)]">
+                Un diagnóstico de 10 minutos para detectar las fugas ocultas que drenan tu negocio. Recupera el
+                tiempo y los recursos que necesitas para escalar.
+              </p>
+              <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--ink-muted)]">
+                Nuestra consultoría de automatización con IA transforma estos cuellos de botella operacionales en
+                flujos de trabajo autónomos, asegurando tus márgenes y brindando la agilidad estructural necesaria
+                para un crecimiento de alta velocidad. Empieza aquí.
+              </p>
+              <div className="mt-10 flex flex-col items-start gap-2">
+                <span className="text-sm text-[var(--ink-muted)]">Desplázate para saber más</span>
+                <svg className="animate-bounce text-[var(--tangerine)]" width="24" height="24" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 5v14M5 12l7 7 7-7" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex justify-center lg:justify-end">
+              <img
+                src="/logo-cobranded.png"
+                alt="Frugal Studio powered by Mindful Tech Automations"
+                className="w-full max-w-md object-contain"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
             </div>
           </div>
         </div>
@@ -94,23 +104,13 @@ export default function HomeES() {
       {/* ── Para quién — 3 columnas ───────────────────────────────────── */}
       <section className="section-alt border-b border-[var(--line)] px-6 py-16">
         <div className="mx-auto max-w-7xl">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div className="flex flex-col gap-5">
-              {infoBoxes.map(({ title, text }) => (
-                <div key={title} className="rounded-xl border border-[var(--line)] bg-white p-6 shadow-sm">
-                  <h3 className="font-bold text-[var(--petrol)]">{title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-[var(--charcoal)]">{text}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <img
-                src="/logo-cobranded.png"
-                alt="Frugal Studio powered by Mindful Tech Automations"
-                className="w-full max-w-sm object-contain"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-              />
-            </div>
+          <div className="flex flex-col gap-5 max-w-2xl">
+            {infoBoxes.map(({ title, text }) => (
+              <div key={title} className="rounded-xl border border-[var(--line)] bg-white p-6 shadow-sm">
+                <h3 className="font-bold text-[var(--petrol)]">{title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[var(--charcoal)]">{text}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
