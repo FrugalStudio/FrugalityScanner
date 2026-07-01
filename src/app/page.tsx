@@ -66,6 +66,30 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Who it is for — 2-col: cards left, logo right ────────────────── */}
+      <section className="section-alt border-b border-[var(--line)] px-6 py-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <div className="flex flex-col gap-5">
+              {infoBoxes.map(({ title, text }) => (
+                <div key={title} className="rounded-xl border border-[var(--line)] bg-white p-6 shadow-sm">
+                  <h3 className="font-bold text-[var(--petrol)]">{title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-[var(--charcoal)]">{text}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-center lg:justify-end">
+              <img
+                src="/logo-cobranded.png"
+                alt="Frugal Studio powered by Mindful Tech Automations"
+                className="w-full max-w-sm object-contain"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Four diagnostic pillars ───────────────────────────────────────── */}
       <section className="border-b border-[var(--line)] px-6 py-16">
         <div className="mx-auto max-w-7xl">
@@ -87,30 +111,6 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Who it is for — 2-col: cards left, logo right ────────────────── */}
-      <section className="section-alt border-b border-[var(--line)] px-6 py-16">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div className="flex flex-col gap-5">
-              {infoBoxes.map(({ title, text }) => (
-                <div key={title} className="rounded-xl border border-[var(--line)] bg-white p-6 shadow-sm">
-                  <h3 className="font-bold text-[var(--petrol)]">{title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-[var(--charcoal)]">{text}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <img
-                src="/logo-cobranded.png"
-                alt="Frugal Studio powered by Mindful Tech Automations"
-                className="w-full max-w-sm object-contain"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-              />
-            </div>
           </div>
         </div>
       </section>
