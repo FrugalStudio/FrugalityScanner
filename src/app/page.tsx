@@ -42,35 +42,25 @@ export default function Home() {
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="executive-grid brand-shell border-b border-[var(--line)] px-6 py-20 lg:py-28">
         <div className="mx-auto max-w-7xl">
-          <div className="grid items-start gap-12 md:grid-cols-2">
-            <div>
-              <h1 className="text-5xl font-bold leading-[1.06] text-[var(--petrol)] md:text-6xl">
-                How Much Operational Waste Is Hiding Inside Your Business?
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--charcoal)]">
-                A 10-minute diagnostic to spot the hidden leaks draining your business. Reclaim the time and
-                resources you need to scale.
-              </p>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--ink-muted)]">
-                Our AI Process Automation Consulting transforms these operational bottlenecks into autonomous
-                workflows, securing your margins and providing the structural agility required for high-velocity
-                growth. Start here.
-              </p>
-              <div className="mt-10 flex flex-col items-start gap-2">
-                <span className="text-sm text-[var(--ink-muted)]">Scroll down to learn more</span>
-                <svg className="animate-bounce text-[var(--tangerine)]" width="24" height="24" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 5v14M5 12l7 7 7-7" />
-                </svg>
-              </div>
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <img
-                src="/logo-cobranded.png"
-                alt="Frugal Studio powered by Mindful Tech Automations"
-                className="w-full max-w-md object-contain"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-              />
+          <div className="max-w-3xl">
+            <h1 className="text-5xl font-bold leading-[1.06] text-[var(--petrol)] md:text-6xl">
+              How Much Operational Waste Is Hiding Inside Your Business?
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--charcoal)]">
+              A 10-minute diagnostic to spot the hidden leaks draining your business. Reclaim the time and
+              resources you need to scale.
+            </p>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-[var(--ink-muted)]">
+              Our AI Process Automation Consulting transforms these operational bottlenecks into autonomous
+              workflows, securing your margins and providing the structural agility required for high-velocity
+              growth. Start here.
+            </p>
+            <div className="mt-10 flex flex-col items-start gap-2">
+              <span className="text-sm text-[var(--ink-muted)]">Scroll down to learn more</span>
+              <svg className="animate-bounce text-[var(--tangerine)]" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 5v14M5 12l7 7 7-7" />
+              </svg>
             </div>
           </div>
         </div>

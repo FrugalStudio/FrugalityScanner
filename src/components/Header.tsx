@@ -13,7 +13,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-white shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
         {/* Co-branded logo */}
         <Link href={isSpanish ? "/es" : "/"} className="flex items-center">
           <img
