@@ -42,7 +42,7 @@ export default function HomeES() {
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="executive-grid brand-shell border-b border-[var(--line)] px-6 py-20 lg:py-28">
         <div className="mx-auto max-w-7xl">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div className="grid items-start gap-12 md:grid-cols-2">
             <div>
               <h1 className="text-5xl font-bold leading-[1.06] text-[var(--petrol)] md:text-6xl">
                 ¿Cuánto desperdicio operacional se esconde dentro de tu negocio?
