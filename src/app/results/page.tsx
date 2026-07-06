@@ -112,10 +112,10 @@ export default function ResultsPage() {
           ) : (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="font-semibold text-[var(--petrol)]">Ready to receive your full report?</div>
+                <div className="font-semibold text-[var(--petrol)]">Get more insights and details by receiving your Full Frugality Scan Report</div>
                 <div className="mt-1 text-sm text-[var(--ink-muted)]">
                   {reportStatus === "sending"
-                    ? "Generating your report — this only takes a moment…"
+                    ? "Creating your full report — it only takes a moment. Please check your email's spam folder."
                     : reportStatus === "error"
                       ? "There was an issue preparing your report. Click below to proceed anyway."
                       : "Your report is ready. Click below to have it sent to your email."}
@@ -127,7 +127,7 @@ export default function ResultsPage() {
                 className="inline-flex h-12 shrink-0 items-center gap-2 rounded-lg bg-[var(--tangerine)] px-6 text-sm font-bold text-white transition hover:bg-[var(--accent-strong)]"
               >
                 <FileText size={16} />
-                Click here to receive full report
+                Click to Receive Full Report by Email
               </button>
             </div>
           )}
