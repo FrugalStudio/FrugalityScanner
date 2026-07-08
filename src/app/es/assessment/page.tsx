@@ -158,6 +158,20 @@ const orgTypeToEN: Record<string, string> = {
 };
 const orgTypeToES: Record<string, string> = Object.fromEntries(Object.entries(orgTypeToEN).map(([es, en]) => [en, es]));
 
+const teamSizesES: string[] = [
+  "Solo / 1 persona",
+  "Núcleo Lean / 2–5 personas",
+  "Equipo en Crecimiento / 6–15 personas",
+  "Operación Establecida / 15+ personas",
+];
+const teamSizeToEN: Record<string, string> = {
+  "Solo / 1 persona": "Solo / 1 person",
+  "Núcleo Lean / 2–5 personas": "Lean Core / 2–5 people",
+  "Equipo en Crecimiento / 6–15 personas": "Scaling Team / 6–15 people",
+  "Operación Establecida / 15+ personas": "Established Operation / 15+ people",
+};
+const teamSizeToES: Record<string, string> = Object.fromEntries(Object.entries(teamSizeToEN).map(([es, en]) => [en, es]));
+
 export default function AssessmentPageES() {
   const router = useRouter();
   const [contact, setContact] = useState<ContactInfo>(initialContact);
@@ -292,8 +306,9 @@ export default function AssessmentPageES() {
 
           {/* Step 3: Escala del Equipo */}
           {step === 3 && (
-            <ChoiceGrid title="¿Cuál es la escala actual de tu equipo principal?" options={teamSizes}
-              value={answers.teamSize} onSelect={(v) => update("teamSize", v)} />
+            <ChoiceGrid title="¿Cuál es la escala actual de tu equipo principal?" options={teamSizesES}
+              value={teamSizeToES[answers.teamSize] ?? answers.teamSize}
+              onSelect={(v) => update("teamSize", teamSizeToEN[v] ?? v)} />
           )}
 
           {/* Step 4: Stack Tecnológico */}
